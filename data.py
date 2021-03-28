@@ -1,7 +1,11 @@
 import numpy as np
-import tensorflow as tf
-import tensorflow_datasets as tfds
+import os
+import warnings
 
+import tensorflow as tf
+#tf.enable_eager_execution()## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
+
+import tensorflow_datasets as tfds
 
 def mnist_x(x_orig, mdl_input_dims, is_training):
 

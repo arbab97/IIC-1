@@ -3,13 +3,13 @@ import time
 import numpy as np
 import tensorflow as tf
 #tf.enable_eager_execution()## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
-
+from pathlib import Path
 from matplotlib import pyplot as plt
 from matplotlib import patches as patches
 from matplotlib.ticker import FormatStrFormatter
 
 # import data loader
-from data import load
+from data_batsnet import load
 
 # import computational graphs
 from graphs import IICGraph, VGG, KERNEL_INIT, BIAS_INIT
@@ -395,21 +395,21 @@ if __name__ == '__main__':
     DS_CONFIG = {
         # mnist data set parameters
         'mnist': {
-            'batch_size': 5,
+            'batch_size': 1,
             'num_repeats': 1,
             'mdl_input_dims': [24, 24, 1]}
     }
 
     # load the data set
 
-    TRAIN_SET, TEST_SET, SET_INFO = load(
+    TRAIN_SET, TEST_SET = load(
         data_set_name=DATA_SET, **DS_CONFIG[DATA_SET])
 
     # configure the common model elements
     MDL_CONFIG = {
         # mist hyper-parameters
         'mnist': {
-            'num_classes': SET_INFO.features['label'].num_classes,
+            'num_classes': 10,
             'learning_rate': 1e-4,
             'num_repeats': DS_CONFIG[DATA_SET]['num_repeats'],
             'save_dir': None},
