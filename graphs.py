@@ -1,5 +1,5 @@
 import tensorflow as tf
-
+# tf.enable_eager_execution()
 # set trainable variable initialization routines
 KERNEL_INIT = tf.keras.initializers.he_uniform()
 WEIGHT_INIT = tf.random_normal_initializer(mean=0.0, stddev=0.01)

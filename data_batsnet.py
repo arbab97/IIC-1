@@ -2,7 +2,7 @@ import numpy as np
 import os
 import warnings
 import tensorflow as tf
-#tf.enable_eager_execution()## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
+#tf.enable_eager_execution()
 from pathlib import Path
 import tensorflow_datasets as tfds
 
@@ -27,15 +27,15 @@ def mnist_x(x_orig_name):
     # with open(x_orig_name, 'rb') as f:  
     #         image_read = Image.open(f).convert('L') ## convert back to convert('RGB')
 
-    x_orig = tf.cast(image_decoded, tf.float32)
     # rescale to [0, 1]
-    x_orig = tf.cast(x_orig, dtype=tf.float32) / x_orig.dtype.max
+    x_orig = tf.cast(image_decoded, dtype=tf.float32) / image_decoded.dtype.max
+
 
     # get common shapes
-    height_width = [24,24]
+    height_width = [100,100]
     
     x=tf.image.resize(x_orig, height_width)
-    x=tf.reshape(x, (-1, 24,24,1))
+    x=tf.reshape(x, (-1, 100,100,1))
 
 
     return x
@@ -49,16 +49,16 @@ def mnist_gx(x_orig_name):
     image_string = tf.io.read_file(x_augmented_name)
     image_decoded = tf.image.decode_png(image_string, channels=1)  #change channels back to 3
 
-    x_augmented = tf.cast(image_decoded, tf.float32)
     # rescale to [0, 1]
-    x_augmented = tf.cast(x_augmented, dtype=tf.float32) / x_augmented.dtype.max
+    x_augmented = tf.cast(image_decoded, dtype=tf.float32) / image_decoded.dtype.max
+
 
     # get common shapes
 
-    height_width = [24,24]
+    height_width = [100,100]
   
     gx=tf.image.resize(x_augmented, height_width)
-    gx=tf.reshape(gx, (-1, 24,24,1))
+    gx=tf.reshape(gx, (-1, 100,100,1))
 
 
     return gx
@@ -121,7 +121,6 @@ def load(data_set_name, **kwargs):
         files_list.append(str(path).split('/')[-1])
 
     #Step-2 create a dataset returning slices of `filenames`
-    placeholder_labels=np.zeros(len(files_list))
     ds = tf.data.Dataset.from_tensor_slices( tf.constant(files_list))
 
     # configure the data sets

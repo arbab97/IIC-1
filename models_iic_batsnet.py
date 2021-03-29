@@ -1,8 +1,10 @@
+import tensorflow as tf
+#tf.enable_eager_execution()
 import copy
 import time
 import numpy as np
-import tensorflow as tf
-#tf.enable_eager_execution()## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
+
+## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
 from pathlib import Path
 from matplotlib import pyplot as plt
 from matplotlib import patches as patches
@@ -194,7 +196,8 @@ class ClusterIIC(object):
         sess.run(iter_init)
 
         # loop over the batches within the unsupervised data iterator
-        print('Evaluating classification accuracy... ')
+        print('Not Evaluating classification accuracy... ')
+        return
         while True:
             try:
                 # grab the results
@@ -397,7 +400,7 @@ if __name__ == '__main__':
         'mnist': {
             'batch_size': 1,
             'num_repeats': 1,
-            'mdl_input_dims': [24, 24, 1]}
+            'mdl_input_dims': [100, 100, 1]}
     }
 
     # load the data set

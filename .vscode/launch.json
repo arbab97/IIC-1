@@ -8,7 +8,8 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-             "program": "models_iic_batsnet.py",
+            // "program": "testing.py", 
+            "program": "models_iic_batsnet.py",
             // "program": "models_iic.py",
             "console": "integratedTerminal"
         }
