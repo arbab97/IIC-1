@@ -398,9 +398,9 @@ if __name__ == '__main__':
     DS_CONFIG = {
         # mnist data set parameters
         'mnist': {
-            'batch_size': 1,
+            'batch_size': 5,
             'num_repeats': 1,
-            'mdl_input_dims': [100, 100, 1]}
+            'mdl_input_dims': [360, 360, 1]}  #they are GIVEN inside the data generator so IRRELAVENT HERE
     }
 
     # load the data set

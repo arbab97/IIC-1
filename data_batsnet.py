@@ -32,10 +32,10 @@ def mnist_x(x_orig_name):
 
 
     # get common shapes
-    height_width = [100,100]
+    height_width = [360,360]
     
     x=tf.image.resize(x_orig, height_width)
-    x=tf.reshape(x, (-1, 100,100,1))
+    x=tf.reshape(x, (-1, 360,360,1))
 
 
     return x
@@ -55,10 +55,10 @@ def mnist_gx(x_orig_name):
 
     # get common shapes
 
-    height_width = [100,100]
+    height_width = [360,360]
   
     gx=tf.image.resize(x_augmented, height_width)
-    gx=tf.reshape(gx, (-1, 100,100,1))
+    gx=tf.reshape(gx, (-1, 360,360,1))
 
 
     return gx
