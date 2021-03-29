@@ -1,5 +1,7 @@
 import tensorflow as tf
 #tf.enable_eager_execution()
+import tensorflow.contrib.eager as tfe
+
 import copy
 import time
 import numpy as np
@@ -46,7 +48,9 @@ class ClusterIIC(object):
         self.y_hats = None
 
         # initialize optimizer
-        self.is_training = tf.compat.v1.placeholder(tf.bool)
+        # self.is_training = tf.compat.v1.placeholder(tf.bool)
+        self.is_training=tf.bool
+        self.is_training=1
         self.learning_rate = learning_rate
         self.global_step = tf.Variable(0, name='global_step', trainable=False)
         self.opt = tf.compat.v1.train.AdamOptimizer(self.learning_rate)
@@ -201,8 +205,9 @@ class ClusterIIC(object):
         while True:
             try:
                 # grab the results
-                results = sess.run([self.y_hats, y_ph], feed_dict={
-                                   self.is_training: False})
+                # results = sess.run([self.y_hats, y_ph], feed_dict={
+                #                    self.is_training: False})
+                results = sess.run([self.y_hats, y_ph])
 
                 # load metrics
                 for i in range(self.num_B_sub_heads):
@@ -296,12 +301,12 @@ class ClusterIIC(object):
         """
         # construct iterator
         iterator = tf.compat.v1.data.make_initializable_iterator(train_set)
+        #iterator=tfe.Iterator(train_set)
         x, gx, y = iterator.get_next().values()
 
         # construct initialization operations
         train_iter_init = iterator.make_initializer(train_set)
-        test_iter_init = iterator.make_initializer(test_set)
-
+        
         # build the model using the supplied computational graph
         self.__build(x, gx, graph)
 
@@ -338,8 +343,9 @@ class ClusterIIC(object):
                     try:
 
                         # run training and losses
-                        losses = sess.run([self.train_ops[i_train]] + [self.losses],
-                                          feed_dict={self.is_training: True})[-1]
+                        # losses = sess.run([self.train_ops[i_train]] + [self.losses],
+                        #                   feed_dict={self.is_training: True})[-1]
+                        losses = sess.run([self.train_ops[i_train]] + [self.losses])[-1]
 
                         # load metrics
                         loss_A.append(losses[0])
@@ -365,7 +371,7 @@ class ClusterIIC(object):
                 self.perf['loss_B'][i] = np.mean(loss_B)
 
                 # get classification performance
-                self.__classification_accuracy(sess, test_iter_init, i, y)
+                # self.__classification_accuracy(sess, test_iter_init, i, y)
 
                 # plot learning curve
                 self.plot_learning_curve(epoch)
@@ -398,9 +404,9 @@ if __name__ == '__main__':
     DS_CONFIG = {
         # mnist data set parameters
         'mnist': {
-            'batch_size': 5,
+            'batch_size': 20,
             'num_repeats': 1,
-            'mdl_input_dims': [360, 360, 1]}  #they are GIVEN inside the data generator so IRRELAVENT HERE
+            'mdl_input_dims': [24, 24, 1]}  #they are GIVEN inside the data generator so IRRELAVENT HERE
     }
 
     # load the data set
@@ -412,8 +418,8 @@ if __name__ == '__main__':
     MDL_CONFIG = {
         # mist hyper-parameters
         'mnist': {
-            'num_classes': 10,
-            'learning_rate': 1e-4,
+            'num_classes': 5,
+            'learning_rate': 0.001,
             'num_repeats': DS_CONFIG[DATA_SET]['num_repeats'],
             'save_dir': None},
     }
@@ -422,8 +428,8 @@ if __name__ == '__main__':
     mdl = ClusterIIC(**MDL_CONFIG[DATA_SET])
 
     # train the model
-    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64),
-              TRAIN_SET, TEST_SET, num_epochs=600)
-
+    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=10)
+    # mdl.train(VGG(config='A', batch_norm=True, fan_out_init=32),
+    #           TRAIN_SET, TEST_SET, num_epochs=10)
     print('All done!')
     plt.show()

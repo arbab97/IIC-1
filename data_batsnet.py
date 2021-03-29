@@ -18,7 +18,7 @@ def mnist_x(x_orig_name):
     # return image, label
     ##Modified code
     #image_string = tf.read_file(x_orig_name)
-    x_orig_name=ip_dir+'/batsnet_train/1/'+ x_orig_name[0]
+    x_orig_name=ip_dir+'/batsnet_train/1/'+ x_orig_name
 
     image_string = tf.io.read_file(x_orig_name)
 
@@ -32,19 +32,20 @@ def mnist_x(x_orig_name):
 
 
     # get common shapes
-    height_width = [360,360]
+    height_width = [24,24]
     
     x=tf.image.resize(x_orig, height_width)
-    x=tf.reshape(x, (-1, 360,360,1))
+    # x=tf.reshape(x, (-1, 100,100,1))
 
-
+    #xx = tf.placeholder(tf.float32, shape=[None, 100, 100,1], name='xx')
+    #xx=x
     return x
 
 
 def mnist_gx(x_orig_name):
 
     # if not training, return a constant value--it will unused but needs to be same shape to avoid TensorFlow errors
-    x_augmented_name =ip_dir+'/augmented/'+ x_orig_name[0]
+    x_augmented_name =ip_dir+'/augmented/'+ x_orig_name
 
     image_string = tf.io.read_file(x_augmented_name)
     image_decoded = tf.image.decode_png(image_string, channels=1)  #change channels back to 3
@@ -55,12 +56,13 @@ def mnist_gx(x_orig_name):
 
     # get common shapes
 
-    height_width = [360,360]
+    height_width = [24,24]
   
     gx=tf.image.resize(x_augmented, height_width)
-    gx=tf.reshape(gx, (-1, 360,360,1))
+    # gx=tf.reshape(gx, (-1, 100,100,1))
 
-
+    # xx2 = tf.placeholder(tf.float32, shape=[None, 100, 100,1], name='xx2')
+    # xx2=gx
     return gx
 
 
@@ -91,14 +93,15 @@ def configure_data_set(ds, batch_size, is_training, **kwargs):
     """
     # enable shuffling and repeats
     #disabling the shuffle
-    #ds = ds.shuffle(10 * batch_size, reshuffle_each_iteration=True).repeat(1)
+    ds = ds.shuffle(10 * batch_size, reshuffle_each_iteration=True).repeat(1)
 
     # batch the data before pre-processing
-    ds = ds.batch(batch_size)
-
+ 
     # pre-process the data set
     with tf.device('/cpu:0'):
         ds = pre_process_data(ds, is_training, **kwargs)
+
+    ds = ds.batch(batch_size)
 
     # enable prefetch
     ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)

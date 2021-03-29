@@ -409,7 +409,7 @@ if __name__ == '__main__':
     MDL_CONFIG = {
         # mist hyper-parameters
         'mnist': {
-            'num_classes': SET_INFO.features['label'].num_classes,
+            'num_classes': 10,
             'learning_rate': 1e-4,
             'num_repeats': DS_CONFIG[DATA_SET]['num_repeats'],
             'save_dir': None},

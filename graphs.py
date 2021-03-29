@@ -30,8 +30,8 @@ def convolution_layer(x, kernel_size, num_out_channels, activation, batch_norm, 
                          name=name)
 
     # run batch norm if specified
-    if batch_norm:
-        x = tf.contrib.layers.batch_norm(inputs=x, is_training=is_training, scope=name)
+    #if batch_norm:  #removing this check because there's no validation step involved now
+    x = tf.contrib.layers.batch_norm(inputs=x, is_training=is_training, scope=name)
 
     # run activation
     x = activation(x)
@@ -84,7 +84,7 @@ class IICGraph(object):
         :param fan_out_init: initial fan out (paper uses 64, but can be reduced for memory constrained systems)
         """
         # set activation
-        self.activation = tf.nn.relu
+        self.activation = tf.nn.relu # replaced from RELU
 
         # save architectural details
         self.config = config
@@ -121,6 +121,7 @@ class IICGraph(object):
             num_out_channels *= 2
             x = convolution_layer(x=x, kernel_size=5, num_out_channels=num_out_channels, activation=self.activation,
                                   batch_norm=self.batch_norm, is_training=is_training, name='conv4')
+            
 
             # flatten
             x = tf.contrib.layers.flatten(x)
@@ -147,7 +148,7 @@ class VGG(object):
         :param fan_out_init: initial fan out (paper uses 64, but can be reduced for memory constrained systems)
         """
         # set activation
-        self.activation = tf.nn.relu
+        self.activation = tf.nn.tanh
 
         # save architectural details
         self.config = config
