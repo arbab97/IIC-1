@@ -404,7 +404,7 @@ if __name__ == '__main__':
     DS_CONFIG = {
         # mnist data set parameters
         'mnist': {
-            'batch_size': 20,
+            'batch_size': 40,
             'num_repeats': 1,
             'mdl_input_dims': [24, 24, 1]}  #they are GIVEN inside the data generator so IRRELAVENT HERE
     }
@@ -419,7 +419,7 @@ if __name__ == '__main__':
         # mist hyper-parameters
         'mnist': {
             'num_classes': 5,
-            'learning_rate': 0.001,
+            'learning_rate': 0.0001,
             'num_repeats': DS_CONFIG[DATA_SET]['num_repeats'],
             'save_dir': None},
     }
@@ -428,7 +428,7 @@ if __name__ == '__main__':
     mdl = ClusterIIC(**MDL_CONFIG[DATA_SET])
 
     # train the model
-    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=10)
+    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=50)
     # mdl.train(VGG(config='A', batch_norm=True, fan_out_init=32),
     #           TRAIN_SET, TEST_SET, num_epochs=10)
     print('All done!')
