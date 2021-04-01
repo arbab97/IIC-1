@@ -374,7 +374,7 @@ class ClusterIIC(object):
                 # self.__classification_accuracy(sess, test_iter_init, i, y)
 
                 # plot learning curve
-                self.plot_learning_curve(epoch)
+                #self.plot_learning_curve(epoch)
 
                 # pause for plot drawing if we aren't saving
                 if self.save_dir is None:
