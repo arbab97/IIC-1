@@ -36,7 +36,7 @@ class ClusterIIC(object):
         self.k_A = 5 * num_classes
         self.num_A_sub_heads = 1
         self.k_B = num_classes
-        self.num_B_sub_heads = 5
+        self.num_B_sub_heads = 5  #changed from 5
         self.num_repeats = num_repeats
 
         # initialize losses
@@ -181,7 +181,7 @@ class ClusterIIC(object):
         self.perf.update({'class_err_avg': np.zeros(num_epochs)})
         self.perf.update({'class_err_max': np.zeros(num_epochs)})
 
-    def __classification_accuracy(self, sess, iter_init, idx, y_ph=None):
+    def __classification_accuracy(self, sess, iter_init, idx, y_ph=None, image_file_name=None):
         """
         :param sess: TensorFlow session
         :param iter_init: TensorFlow data iterator initializer associated
@@ -201,13 +201,13 @@ class ClusterIIC(object):
 
         # loop over the batches within the unsupervised data iterator
         print('Not Evaluating classification accuracy... ')
-        return
+        #return
         while True:
             try:
                 # grab the results
                 # results = sess.run([self.y_hats, y_ph], feed_dict={
                 #                    self.is_training: False})
-                results = sess.run([self.y_hats, y_ph])
+                results = sess.run([self.y_hats, y_ph, image_file_name])
 
                 # load metrics
                 for i in range(self.num_B_sub_heads):
@@ -238,9 +238,79 @@ class ClusterIIC(object):
             self.perf['class_err_min'][idx] = np.min(class_errors)
             self.perf['class_err_avg'][idx] = np.mean(class_errors)
             self.perf['class_err_max'][idx] = np.max(class_errors)
-
+        
+       
         # metrics are done
         print('Done')
+
+    def __save_results(self, sess, iter_init, idx, y_ph=None, image_file_name=None):
+        """
+        :param sess: TensorFlow session
+        :param iter_init: TensorFlow data iterator initializer associated
+        :param idx: insertion index (i.e. epoch - 1)
+        :param y_ph: TensorFlow placeholder for unseen labels
+        :param image_file_name to retrieve the original file names  #new
+        :return: None
+        
+        """
+        if self.perf is None or y_ph is None:
+            return
+
+        # initialize results
+        y = np.zeros([0, 1])
+        y_hats = [np.zeros([0, 1])] * self.num_B_sub_heads
+
+        # initialize unsupervised data iterator
+        sess.run(iter_init)
+
+        # loop over the batches within the unsupervised data iterator
+        #return
+        file_names=[]
+        while True:
+            try:
+                # grab the results
+                # results = sess.run([self.y_hats, y_ph], feed_dict={
+                #                    self.is_training: False})
+                results = sess.run([self.y_hats, y_ph, image_file_name])
+
+                # load metrics
+                for i in range(self.num_B_sub_heads):
+                    y_hats[i] = np.concatenate(
+                        (y_hats[i], np.expand_dims(results[0][i], axis=1)))
+                if y_ph is not None:
+                    y = np.concatenate((y, np.expand_dims(results[1], axis=1)))
+                file_names=file_names+list(results[2])
+
+                # _, ax = plt.subplots(2, 10)
+                # i_rand = np.random.choice(results[3].shape[0], 10)
+                # for i in range(10):
+                #     ax[0, i].imshow(results[3][i_rand[i]][:, :, 0], origin='upper', vmin=0, vmax=1)
+                #     ax[0, i].set_xticks([])
+                #     ax[0, i].set_yticks([])
+                #     ax[1, i].imshow(results[4][i_rand[i]][:, :, 0], origin='upper', vmin=0, vmax=1)
+                #     ax[1, i].set_xticks([])
+                #     ax[1, i].set_yticks([])
+                # plt.show()
+
+            # iterator will throw this error when its out of data
+            except tf.errors.OutOfRangeError:
+                break
+
+        #Saving results form first the first head 
+        output_file_name="results_iic.csv"
+        results_iic={
+        "Image Name": [i.decode('utf-8') for i in file_names], 
+        "Prediction":[int(i) for i in   list(y_hats[0].reshape(-1) )] 
+        }
+        (pd.DataFrame(results_iic).to_csv(output_file_name, header=True, mode='w'))
+
+        # metrics are done
+        print('Results SAved')
+
+
+
+
+
 
     def plot_learning_curve(self, epoch):
         """
@@ -302,11 +372,12 @@ class ClusterIIC(object):
         # construct iterator
         iterator = tf.compat.v1.data.make_initializable_iterator(train_set)
         #iterator=tfe.Iterator(train_set)
-        x, gx, y = iterator.get_next().values()
+        x, gx, y, image_file_name = iterator.get_next().values()
 
         # construct initialization operations
         train_iter_init = iterator.make_initializer(train_set)
-        
+        test_iter_init = iterator.make_initializer(test_set)
+
         # build the model using the supplied computational graph
         self.__build(x, gx, graph)
 
@@ -370,15 +441,16 @@ class ClusterIIC(object):
                 self.perf['loss_A'][i] = np.mean(loss_A)
                 self.perf['loss_B'][i] = np.mean(loss_B)
 
-                # get classification performance
-                # self.__classification_accuracy(sess, test_iter_init, i, y)
+                # get classification performance __save_results
+                #self.__classification_accuracy(sess, test_iter_init, i, y, image_file_name)
 
+                if (i==(num_epochs-1)): # i.e. saving resutls on the last epoch
+                    self.__save_results(sess, test_iter_init, i, y, image_file_name)
+               
                 # plot learning curve
                 #self.plot_learning_curve(epoch)
 
                 # pause for plot drawing if we aren't saving
-                if self.save_dir is None:
-                    plt.pause(0.05)
 
                 # print time for epoch
                 stop = time.time()
@@ -391,7 +463,10 @@ class ClusterIIC(object):
                 # print('Early stop checks: {:d} / {:d}\n'.format(epochs_since_improvement, early_stop_buffer))
                 # if epochs_since_improvement >= early_stop_buffer:
                 #     break
+        
 
+        # get classification performance __save_results
+        #self.__save_results(sess, test_iter_init, i, y, image_file_name)
         # save the performance
         #Saving the stats in the csv file
         output_file_name='stats_iic.csv'
@@ -401,8 +476,7 @@ class ClusterIIC(object):
          }
         (pd.DataFrame(iic_stats).to_csv(output_file_name, header=True, mode='w'))
 
-        #save_performance(self.perf, epoch, self.save_dir)
-
+        #Now, saving the results
 
 if __name__ == '__main__':
     # pick a data set
@@ -436,8 +510,8 @@ if __name__ == '__main__':
     mdl = ClusterIIC(**MDL_CONFIG[DATA_SET])
 
     # train the model
-    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=6)
+    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=10)
     # mdl.train(VGG(config='A', batch_norm=True, fan_out_init=32),
     #           TRAIN_SET, TEST_SET, num_epochs=10)
     print('All done!')
-    plt.show()
+   # plt.show()

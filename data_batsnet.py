@@ -76,7 +76,8 @@ def pre_process_data(ds, is_training, **kwargs):
     # apply pre-processing function for given data set and run-time conditions
     return ds.map(lambda d: {'x': mnist_x(d),
                             'gx': mnist_gx(d),
-                            'label': 1},
+                            'label': 1,
+                            'Name': d},
                     num_parallel_calls=tf.data.experimental.AUTOTUNE)
 
 #    return ds.map(mnist_x)
@@ -125,8 +126,13 @@ def load(data_set_name, **kwargs):
 
     #Step-2 create a dataset returning slices of `filenames`
     ds = tf.data.Dataset.from_tensor_slices( tf.constant(files_list))
-
     # configure the data sets
     train_ds = configure_data_set(ds=ds, is_training=True, **kwargs)
 
-    return train_ds, train_ds
+    ##Making the same dataset again to get predictions
+    ds2 = tf.data.Dataset.from_tensor_slices( tf.constant(files_list))
+    test_ds = configure_data_set(ds=ds2, is_training=True, **kwargs)  #is_training doesn't matter becuase we are not using for validation
+
+
+
+    return train_ds, test_ds
