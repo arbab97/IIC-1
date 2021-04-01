@@ -5,7 +5,7 @@ import tensorflow.contrib.eager as tfe
 import copy
 import time
 import numpy as np
-
+import pandas as pd
 ## ADded to visualize the dataset values !!!! TURN OFF FOR FASTER TRAINING
 from pathlib import Path
 from matplotlib import pyplot as plt
@@ -393,7 +393,15 @@ class ClusterIIC(object):
                 #     break
 
         # save the performance
-        save_performance(self.perf, epoch, self.save_dir)
+        #Saving the stats in the csv file
+        output_file_name='stats_iic.csv'
+        iic_stats={ "Epoch":list(range(1, len(self.perf['loss_A'])+1)),
+        "First Head Loss": self.perf['loss_A'],
+        "Second Head Loss": self.perf['loss_B']
+         }
+        (pd.DataFrame(iic_stats).to_csv(output_file_name, header=True, mode='w'))
+
+        #save_performance(self.perf, epoch, self.save_dir)
 
 
 if __name__ == '__main__':
@@ -428,7 +436,7 @@ if __name__ == '__main__':
     mdl = ClusterIIC(**MDL_CONFIG[DATA_SET])
 
     # train the model
-    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=50)
+    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=64), TRAIN_SET, TEST_SET, num_epochs=6)
     # mdl.train(VGG(config='A', batch_norm=True, fan_out_init=32),
     #           TRAIN_SET, TEST_SET, num_epochs=10)
     print('All done!')
