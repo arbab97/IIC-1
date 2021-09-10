@@ -6,7 +6,7 @@ import tensorflow as tf
 from pathlib import Path
 import tensorflow_datasets as tfds
 
-ip_dir = '/media/rabi/Data/ThesisData/audio data analysis/audio-clustering/plots_15march_b/spectrograms_normalized'
+ip_dir = '/content/spectrograms_vmin_vmax_highpass_balance_top5_2_cropped'
 
 
 # step 3: parse every image in the dataset using map
