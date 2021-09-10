@@ -487,7 +487,7 @@ if __name__ == '__main__':
         # mnist data set parameters
         'mnist': {
             'batch_size': 50,
-            'num_repeats': 1,
+            'num_repeats': 1}
     }
 
     # load the data set
