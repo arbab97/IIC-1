@@ -486,9 +486,8 @@ if __name__ == '__main__':
     DS_CONFIG = {
         # mnist data set parameters
         'mnist': {
-            'batch_size': 20,
+            'batch_size': 50,
             'num_repeats': 1,
-            'mdl_input_dims': [24, 24, 1]}  #they are GIVEN inside the data generator so IRRELAVENT HERE
     }
 
     # load the data set
@@ -510,7 +509,7 @@ if __name__ == '__main__':
     mdl = ClusterIIC(**MDL_CONFIG[DATA_SET])
 
     # train the model
-    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=32), TRAIN_SET, TEST_SET, num_epochs=50)
+    mdl.train(IICGraph(config='B', batch_norm=True, fan_out_init=32), TRAIN_SET, TEST_SET, num_epochs=100)
     # mdl.train(VGG(config='A', batch_norm=True, fan_out_init=32),
     #           TRAIN_SET, TEST_SET, num_epochs=10)
     print('All done!')
