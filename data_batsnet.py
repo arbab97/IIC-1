@@ -6,39 +6,21 @@ import tensorflow as tf
 from pathlib import Path
 import tensorflow_datasets as tfds
 
-ip_dir = '/content/spectrograms_vmin_vmax_highpass_balance_top5_2_cropped'
+ip_dir = '/content/our_data'
 
 
 # step 3: parse every image in the dataset using map
 def mnist_x(x_orig_name):
-    ## Original Code from source
-    # image_string = tf.read_file(filename)
-    # image_decoded = tf.image.decode_jpeg(image_string, channels=3)
-    # image = tf.cast(image_decoded, tf.float32)
-    # return image, label
-    ##Modified code
-    #image_string = tf.read_file(x_orig_name)
     x_orig_name=ip_dir+'/batsnet_train/1/'+ x_orig_name
 
     image_string = tf.io.read_file(x_orig_name)
 
 
     image_decoded = tf.image.decode_png(image_string, channels=1)  #change channels back to 3
-    # with open(x_orig_name, 'rb') as f:  
-    #         image_read = Image.open(f).convert('L') ## convert back to convert('RGB')
-
-    # rescale to [0, 1]
     x_orig = tf.cast(image_decoded, dtype=tf.float32) / image_decoded.dtype.max
+  
+    x=tf.image.resize(x_orig, [24,24])
 
-
-    # get common shapes
-    height_width = [24,24]
-    
-    x=tf.image.resize(x_orig, height_width)
-    # x=tf.reshape(x, (-1, 100,100,1))
-
-    #xx = tf.placeholder(tf.float32, shape=[None, 100, 100,1], name='xx')
-    #xx=x
     return x
 
 
@@ -50,19 +32,11 @@ def mnist_gx(x_orig_name):
     image_string = tf.io.read_file(x_augmented_name)
     image_decoded = tf.image.decode_png(image_string, channels=1)  #change channels back to 3
 
-    # rescale to [0, 1]
     x_augmented = tf.cast(image_decoded, dtype=tf.float32) / image_decoded.dtype.max
 
-
-    # get common shapes
-
-    height_width = [24,24]
   
-    gx=tf.image.resize(x_augmented, height_width)
-    # gx=tf.reshape(gx, (-1, 100,100,1))
+    gx=tf.image.resize(x_augmented, [24,24])
 
-    # xx2 = tf.placeholder(tf.float32, shape=[None, 100, 100,1], name='xx2')
-    # xx2=gx
     return gx
 
 
