@@ -16,7 +16,7 @@ A notebook has already been setup which will fetch the required data, install al
 * Finally, run the model using the command given above. In notebook it is:  `source activate iic_astirn_env && python models_iic_batsnet.py`
 * The output is provided in `csv` format in the file: `results_iic.csv`
 
-## Citation
+### Citation
 This Algorithms is taken from:
 ```bibtex
 @inproceedings{ji2019invariant,
